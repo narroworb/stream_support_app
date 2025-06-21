@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <title>График настроения</title>
+  <style>
+    body {
+      background: #121212;
+      margin: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+    canvas {
+      background: #181818;
+      border-radius: 12px;
+      box-shadow: 0 0 20px #00bcd4aa;
+    }
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <canvas id="moodChart" width="800" height="400"></canvas>
+
+  <script>
+    // Получаем параметр dayId из URL, например moodChart.html?id=123
+    function getQueryParam(name) {
+      const urlParams = new URLSearchParams(window.location.search);
+      return urlParams.get(name);
+    }
+    const dayId = getQueryParam('id');
+
+    async function loadMoodData() {
+      if (!dayId) {
+        alert('Не указан параметр id');
+        return;
+      }
+
+      try {
+        const res = await fetch(`/stats/mood?dayId=${dayId}`);
+        if (!res.ok) throw new Error('Ошибка загрузки данных');
+
+        const data = await res.json();
+        drawMoodChart(data.mood);
+      } catch (e) {
+        alert('Ошибка: ' + e.message);
+      }
+    }
+
+    function drawMoodChart(moodArr) {
+      const ctx = document.getElementById('moodChart').getContext('2d');
+      new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: moodArr.map((_, i) => i + 1),
+          datasets: [{
+            label: 'Настроение',
+            data: moodArr,
+            borderColor: '#00bcd4',
+            backgroundColor: '#00bcd4',
+            fill: false,
+            tension: 0.3,
+            pointRadius: 4,
+            pointHoverRadius: 6,
+          }]
+        },
+        options: {
+          responsive: false,
+          scales: {
+            x: {
+              title: { display: true, text: 'Игры', color: '#00acc1' },
+              ticks: { color: '#eee' }
+            },
+            y: {
+              title: { display: true, text: 'Рейтинг настроения', color: '#00acc1' },
+              ticks: { color: '#eee' },
+              min: Math.min(...moodArr) - 1,
+              max: Math.max(...moodArr) + 1,
+            }
+          },
+          plugins: {
+            legend: { labels: { color: '#eee' } },
+            tooltip: { enabled: true }
+          }
+        }
+      });
+    }
+
+    loadMoodData();
+  </script>
+</body>
+</html>

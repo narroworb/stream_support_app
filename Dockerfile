@@ -20,6 +20,8 @@ COPY --from=build /app/bin/app .
 
 COPY .env .
 
+COPY web ./web
+
 COPY --from=build /app/migrations ./migrations
 
 EXPOSE 8080

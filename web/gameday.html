@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <title>Игры и статистика дня</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@700&family=Roboto&display=swap');
+
+    /* Общие стили */
+    body {
+      background: #121212;
+      color: #eee;
+      font-family: 'Roboto', Arial, sans-serif;
+      padding: 2rem 3rem;
+      min-height: 100vh;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    /* Заголовок сверху */
+    h1#mainTitle {
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 700;
+      font-size: 3.5rem;
+      color: #00bcd4;
+      margin-bottom: 2rem;
+      text-align: center;
+      text-shadow: 0 0 10px #00bcd4aa, 0 0 20px #00bcd4cc;
+      user-select: none;
+    }
+
+    /* Основной контейнер */
+    main {
+      max-width: 900px;
+      width: 100%;
+    }
+
+    /* Кнопка назад */
+    #backBtn {
+      background: #00bcd4;
+      color: #121212;
+      font-weight: 600;
+      padding: 0.6rem 1.2rem;
+      border-radius: 8px;
+      cursor: pointer;
+      border: none;
+      box-shadow: 0 4px 8px rgba(0,188,212,0.4);
+      transition: background-color 0.3s ease;
+    }
+    #backBtn:hover {
+      background: #0097a7;
+    }
+
+    /* Заголовки секций */
+    h2 {
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 700;
+      font-size: 1.6rem;
+      margin-top: 2.5rem;
+      margin-bottom: 1rem;
+      color: #00acc1;
+      border-bottom: 2px solid #00acc1;
+      padding-bottom: 0.3rem;
+      user-select: none;
+    }
+
+    /* Форма добавления игры */
+    form#addGameForm {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem 1.5rem;
+      background: #1e1e1e;
+      padding: 1rem 1.5rem;
+      border-radius: 10px;
+      box-shadow: 0 0 10px #00bcd4aa;
+      align-items: center;
+      justify-content: flex-start;
+    }
+
+    form#addGameForm label {
+      flex: 1 1 180px;
+      font-size: 0.95rem;
+      color: #b0e0eb;
+      display: flex;
+      flex-direction: column;
+      gap: 0.2rem;
+      user-select: none;
+    }
+
+    form#addGameForm input,
+    form#addGameForm select {
+      background: #222;
+      border: 1px solid #00bcd4;
+      color: #eee;
+      padding: 0.4rem 0.6rem;
+      border-radius: 6px;
+      font-size: 1rem;
+      transition: border-color 0.3s ease;
+    }
+    form#addGameForm input:focus,
+    form#addGameForm select:focus {
+      outline: none;
+      border-color: #00e5ff;
+      box-shadow: 0 0 6px #00e5ffaa;
+    }
+
+    form#addGameForm button[type="submit"] {
+      flex: 1 1 100%;
+      background: #00bcd4;
+      border: none;
+      color: #121212;
+      font-weight: 700;
+      font-size: 1.1rem;
+      padding: 0.7rem 1rem;
+      border-radius: 8px;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(0,188,212,0.6);
+      transition: background-color 0.3s ease;
+      margin-top: 0.5rem;
+      user-select: none;
+    }
+    form#addGameForm button[type="submit"]:hover {
+      background: #0097a7;
+    }
+
+    /* Список игр */
+    ul#gamesList {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      background: #1e1e1e;
+      border-radius: 10px;
+      box-shadow: 0 0 15px #00bcd4aa;
+      max-height: 360px;
+      overflow-y: auto;
+    }
+
+    ul#gamesList li {
+      padding: 1rem 1.2rem;
+      border-bottom: 1px solid #333;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 1rem;
+      color: #cce7eb;
+      transition: background-color 0.2s ease;
+    }
+    ul#gamesList li:hover {
+      background-color: #004d57;
+    }
+
+    .game-info {
+      flex-grow: 1;
+      user-select: text;
+    }
+
+    .game-buttons button {
+      background: #d32f2f;
+      border: none;
+      color: #fff;
+      padding: 0.5rem 1rem;
+      border-radius: 6px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+      user-select: none;
+    }
+    .game-buttons button:hover {
+      background: #b71c1c;
+    }
+
+    /* Статистика */
+    #stats {
+      background: #1e1e1e;
+      padding: 1rem 1.5rem;
+      border-radius: 10px;
+      box-shadow: 0 0 15px #00bcd4aa;
+      font-size: 1.1rem;
+      color: #b0e0eb;
+      line-height: 1.5;
+      user-select: none;
+    }
+
+    /* График */
+    canvas#moodChart {
+      margin-top: 1rem;
+      border-radius: 12px;
+      box-shadow: 0 0 20px #00bcd4aa;
+      background: #181818;
+    }
+
+    /* Скроллбар для списка игр (браузер Chrome, Edge) */
+    ul#gamesList::-webkit-scrollbar {
+      width: 8px;
+    }
+    ul#gamesList::-webkit-scrollbar-track {
+      background: #121212;
+      border-radius: 10px;
+    }
+    ul#gamesList::-webkit-scrollbar-thumb {
+      background: #00bcd4;
+      border-radius: 10px;
+    }
+
+    /* Адаптив */
+    @media (max-width: 640px) {
+      body {
+        padding: 1rem 1.5rem;
+      }
+      form#addGameForm label {
+        flex: 1 1 100%;
+      }
+      form#addGameForm button[type="submit"] {
+        flex: 1 1 100%;
+      }
+      ul#gamesList {
+        max-height: 280px;
+      }
+    }
+
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+  <h1 id="mainTitle">WARZONE STATS</h1>
+
+  <main>
+
+    <div>
+      <button id="backBtn">← Назад к дням</button>
+    </div>
+
+    <h2>Добавить игру</h2>
+    <form id="addGameForm">
+      <label>Место:
+        <input name="place" type="number" min="1" required />
+      </label>
+      <label>Убийств:
+        <input name="kills" type="number" min="0" required />
+      </label>
+      <label>Ликвидаций:
+        <input name="liquidations" type="number" min="0" required />
+      </label>
+      <label>Урон:
+        <input name="damage" type="number" min="0" required />
+      </label>
+      <label>Изменение настроения:
+        <input name="mood_diff" type="number" required />
+      </label>
+      <label>Очки:
+        <input name="points" type="number" required />
+      </label>
+      <label>Статус:
+        <select name="status_code" required>
+          <option value="1">Позитивная игра в минус по рейтингу</option>
+          <option value="2">Позитивная игра в плюс по рейтингу</option>
+          <option value="3">Негативная игра в минус по рейтингу</option>
+          <option value="4">Негативная игра в плюс по рейтингу</option>
+        </select>
+      </label>
+      <button type="submit">Добавить игру</button>
+    </form>
+
+    <h2>Игры</h2>
+    <ul id="gamesList"></ul>
+
+    <h2>Статистика</h2>
+    <div id="stats"></div>
+
+    <h2>График настроения</h2>
+    <canvas id="moodChart" width="600" height="300"></canvas>
+
+  </main>
+
+  <script>
+    // --- Сюда вставляем ваш существующий JS код без изменений ---
+    function getQueryParam(name) {
+      const urlParams = new URLSearchParams(window.location.search);
+      return urlParams.get(name);
+    }
+
+    const dayId = getQueryParam('id');
+    const backBtn = document.getElementById('backBtn');
+    const gamesList = document.getElementById('gamesList');
+    const statsDiv = document.getElementById('stats');
+    const addGameForm = document.getElementById('addGameForm');
+
+    backBtn.onclick = () => {
+      window.location.href = 'index.html';
+    };
+
+    async function loadGames() {
+      const res = await fetch(`/game/list?dayId=${dayId}`);
+      if (!res.ok) {
+        gamesList.innerHTML = '<li>Ошибка загрузки игр</li>';
+        return;
+      }
+      const data = await res.json();
+      const games = data.games;
+
+      if (!games.length) {
+        gamesList.innerHTML = '<li>Игры отсутствуют</li>';
+        return;
+      }
+
+      gamesList.innerHTML = '';
+      const statusNames = {
+        1: 'Позитивная игра в минус по рейтингу',
+        2: 'Позитивная игра в плюс по рейтингу',
+        3: 'Негативная игра в минус по рейтингу',
+        4: 'Негативная игра в плюс по рейтингу',
+      };
+
+      games.forEach(game => {
+        const li = document.createElement('li');
+
+        // Форматируем дату-время
+        const formattedDate = new Date(game.game_date).toLocaleString('ru-RU', {
+          year: 'numeric',
+          month: '2-digit',
+          day: '2-digit',
+          hour: '2-digit',
+          minute: '2-digit'
+        });
+
+        li.innerHTML = `
+          <div class="game-info">
+            Игра от ${formattedDate}. Место: ${game.place} | Убийства: ${game.kills} | Ликвидации: ${game.liquidations} | Урон: ${game.damage} | Изменение настроения: ${game.mood_diff} | Очки: ${game.points} | Итог: ${statusNames[game.status_code] || 'Неизвестный'}
+          </div>
+          <div class="game-buttons">
+            <button onclick="deleteGame(${game.id})">Удалить</button>
+          </div>
+        `;
+        gamesList.appendChild(li);
+      });
+
+    }
+
+    async function loadStats() {
+      try {
+        const moodRes = await fetch(`/stats/mood?dayId=${dayId}`);
+        const pointsRes = await fetch(`/stats/points?dayId=${dayId}`);
+        const goodplusRes = await fetch(`/todaygames/goodplus?dayId=${dayId}`);
+        const badminusRes = await fetch(`/todaygames/badminus?dayId=${dayId}`);
+        const badplusRes = await fetch(`/todaygames/badplus?dayId=${dayId}`);
+        const goodminusRes = await fetch(`/todaygames/goodminus?dayId=${dayId}`);
+
+        if (!moodRes.ok || !pointsRes.ok) {
+          statsDiv.textContent = 'Ошибка загрузки статистики';
+          return;
+        }
+
+        const moodData = await moodRes.json();
+        const pointsData = await pointsRes.json();
+        const goodplus = await goodplusRes.json();
+        const badminus = await badminusRes.json();
+        const badplus = await badplusRes.json();
+        const goodminus = await goodminusRes.json();
+
+        statsDiv.innerHTML = `
+          <p><strong>Рейтинг настроения:</strong> ${moodData.mood.at(-1)}</p>
+          <p><strong>Баланс очков:</strong> ${pointsData.points}</p>
+          <p><strong>Позитивные игры в плюс по очкам:</strong> ${goodplus.count}</p>
+          <p><strong>Позитивные игры в минус по очкам:</strong> ${goodminus.count}</p>
+          <p><strong>Негативные игры в плюс по очкам:</strong> ${badplus.count}</p>
+          <p><strong>Негативные игры в минус по очкам:</strong> ${badminus.count}</p>
+        `;
+
+        drawMoodChart(moodData.mood);
+
+      } catch (e) {
+        statsDiv.textContent = 'Ошибка при загрузке статистики.';
+      }
+    }
+
+    async function deleteGame(gameId) {
+      if (!confirm('Удалить игру?')) return;
+      const res = await fetch(`/game/remove?id=${gameId}`, { method: 'DELETE' });
+      if (res.ok) {
+        loadGames();
+        loadStats();
+      } else {
+        alert('Ошибка удаления игры');
+      }
+    }
+
+    addGameForm.onsubmit = async e => {
+      e.preventDefault();
+      const formData = new FormData(addGameForm);
+      const body = {};
+      for (const [key, value] of formData.entries()) {
+        body[key] = key === 'place' || key === 'kills' || key === 'liquidations' || key === 'damage' || key === 'mood_diff' || key === 'points' || key === 'status_code' ? Number(value) : value;
+      }
+      body.day_id = Number(dayId);
+
+      const res = await fetch(`/game/new?dayId=${dayId}`, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(body)
+      });
+      if (res.ok) {
+        addGameForm.reset();
+        loadGames();
+        loadStats();
+      } else {
+        alert('Ошибка добавления игры');
+      }
+    };
+
+    function drawMoodChart(moodArr) {
+      const ctx = document.getElementById('moodChart').getContext('2d');
+      if (window.moodChartInstance) {
+        window.moodChartInstance.destroy();
+      }
+
+      window.moodChartInstance = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: moodArr.map((_, i) => i + 1),
+          datasets: [{
+            label: 'Настроение',
+            data: moodArr,
+            fill: false,
+            borderColor: '#00bcd4',
+            backgroundColor: '#00bcd4',
+            tension: 0.3,
+            pointRadius: 4,
+            pointHoverRadius: 6,
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: { labels: { color: '#eee' } },
+            tooltip: { enabled: true }
+          },
+          scales: {
+            x: {
+              title: {
+                display: true,
+                text: 'Игры',
+                color: '#00acc1',
+                font: { size: 14, weight: 'bold' }
+              },
+              ticks: { color: '#eee' }
+            },
+            y: {
+              title: {
+                display: true,
+                text: 'Рейтинг настроения',
+                color: '#00acc1',
+                font: { size: 14, weight: 'bold' }
+              },
+              ticks: { color: '#eee' },
+              beginAtZero: true
+            }
+          }
+        }
+      });
+    }
+
+    // Загрузка данных при старте
+    loadGames();
+    loadStats();
+  </script>
+
+</body>
+</html>

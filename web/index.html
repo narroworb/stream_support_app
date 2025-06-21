@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8" />
+<title>WARZONE STATS</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@700&family=Roboto&display=swap');
+
+  body {
+    background: #121212;
+    color: #eee;
+    font-family: 'Roboto', Arial, sans-serif;
+    padding: 2rem 3rem;
+    margin: 0;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  h1 {
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 700;
+    font-size: 3rem;
+    color: #00bcd4;
+    margin-bottom: 2rem;
+    text-align: center;
+    text-shadow: 0 0 10px #00bcd4aa, 0 0 20px #00bcd4cc;
+    user-select: none;
+  }
+
+  #createSection {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    align-items: center;
+    flex-wrap: wrap; /* для адаптивности */
+    }
+
+    input[type="number"] {
+    background: #222;
+    border: 1px solid #00bcd4;
+    color: #eee;
+    padding: 0.5rem 0.8rem;
+    border-radius: 6px;
+    font-size: 1rem;
+    width: 200px; /* сделано шире */
+    transition: border-color 0.3s ease;
+    }
+
+
+  input[type="number"]:focus {
+    outline: none;
+    border-color: #00e5ff;
+    box-shadow: 0 0 6px #00e5ffaa;
+  }
+
+  button {
+    background: #00bcd4;
+    color: #121212;
+    font-weight: 700;
+    font-size: 1rem;
+    padding: 0.6rem 1.2rem;
+    border-radius: 8px;
+    cursor: pointer;
+    border: none;
+    box-shadow: 0 4px 8px rgba(0,188,212,0.4);
+    transition: background-color 0.3s ease;
+    user-select: none;
+  }
+
+  button:hover {
+    background: #0097a7;
+  }
+
+.day-buttons .save-btn {
+  background: #4caf50;
+  color: #fff;
+}
+
+.day-buttons .save-btn:hover {
+  background: #388e3c;
+}
+
+
+  ul#daysList {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    max-width: 900px;
+    width: 100%;
+    background: #1e1e1e;
+    border-radius: 10px;
+    box-shadow: 0 0 15px #00bcd4aa;
+  }
+
+  li.day-item {
+    padding: 1rem 1.2rem;
+    border-bottom: 1px solid #333;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 1rem;
+    color: #cce7eb;
+    transition: background-color 0.2s ease;
+  }
+
+  li.day-item:hover {
+    background-color: #004d57;
+  }
+
+  .day-buttons button {
+    background: #d32f2f;
+    color: #fff;
+    padding: 0.5rem 0.9rem;
+    border-radius: 6px;
+    font-weight: 600;
+    margin-left: 0.5rem;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+
+  .day-buttons button:hover {
+    background: #b71c1c;
+  }
+
+  .day-buttons button:first-child {
+    background: #00bcd4;
+    color: #121212;
+  }
+
+  .day-buttons button:first-child:hover {
+    background: #0097a7;
+  }
+
+  li.saved {
+    background-color: #263238;
+    border-left: 4px solid #4caf50;
+  }
+
+  @media (max-width: 640px) {
+    body {
+      padding: 1rem;
+    }
+    li.day-item {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0.5rem;
+    }
+    .day-buttons {
+      width: 100%;
+      display: flex;
+      justify-content: flex-start;
+      flex-wrap: wrap;
+    }
+    .day-buttons button {
+      margin: 0.3rem 0.3rem 0 0;
+    }
+  }
+</style>
+</head>
+<body>
+
+<h1>WARZONE STATS</h1>
+
+<div id="createSection">
+  <input id="moodStart" type="number" min="0" max="100" placeholder="Настроение в начале" />
+  <button id="createBtn">Начать день</button>
+</div>
+
+<ul id="daysList"></ul>
+
+<script>
+  const daysList = document.getElementById('daysList');
+  const createBtn = document.getElementById('createBtn');
+  const moodStartInput = document.getElementById('moodStart');
+
+  async function loadDays() {
+    const res = await fetch('/gameday/list');
+    if (!res.ok) {
+        daysList.textContent = 'Ошибка загрузки данных';
+        return;
+    }
+    const data = await res.json();
+
+    daysList.innerHTML = '';
+    data.gamedays.forEach(day => {
+        const date = new Date(day.playday).toLocaleString('ru-RU', {
+          year: 'numeric', month: '2-digit', day: '2-digit',
+          hour: '2-digit', minute: '2-digit'
+        });
+
+        const moodEnd = (day.mood_end === -1) ? 'null' : day.mood_end;
+        const status = day.saved ? '✅ Закончен' : '🕓 Не завершён';
+
+        const li = document.createElement('li');
+        li.classList.add('day-item');
+        if (day.saved) li.classList.add('saved');
+        li.innerHTML = `
+          <span>
+            <strong>День:</strong> ${date}<br>
+            <strong>Настроение в начале:</strong> ${day.mood_start}, 
+            <strong>Настроение в конце:</strong> ${moodEnd}<br>
+            <strong>Статус:</strong> ${status}
+          </span>
+          <span class="day-buttons">
+            <button onclick="goToDay(${day.id})">Открыть</button>
+            <button onclick="deleteDay(event, ${day.id})">Удалить</button>
+            <button class="save-btn" onclick="saveDay(event, ${day.id})">Сохранить</button>
+          </span>
+        `;
+        daysList.appendChild(li);
+    });
+  }
+
+  async function saveDay(event, id) {
+    event.stopPropagation();
+    const confirmSave = confirm('Сохранить игровой день?');
+    if (!confirmSave) return;
+
+    await fetch(`/gameday/save?id=${id}`, {
+        method: 'PATCH',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({})
+    });
+
+    await loadDays();
+  }
+
+  createBtn.onclick = async () => {
+    const mood = Number(moodStartInput.value);
+    if (isNaN(mood) || mood < 0 || mood > 100) {
+      alert('Введите корректное число (0-100)');
+      return;
+    }
+    await fetch('/gameday/new', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({mood_start: mood})
+    });
+    moodStartInput.value = '';
+    await loadDays();
+  };
+
+  function goToDay(id) {
+    window.location.href = `gameday.html?id=${id}`;
+  }
+
+  async function deleteDay(event, id) {
+    event.stopPropagation();
+    if (!confirm('Удалить этот игровой день?')) return;
+    await fetch(`/gameday/remove?id=${id}`, { method: 'DELETE' });
+    await loadDays();
+  }
+
+  async function editDay(event, id, currentMood) {
+    event.stopPropagation();
+    const newMood = prompt('Введите новое настроение (0-100)', currentMood);
+    if (newMood === null) return;
+    const moodNum = Number(newMood);
+    if (isNaN(moodNum) || moodNum < 0 || moodNum > 100) {
+      alert('Некорректное значение');
+      return;
+    }
+    await fetch(`/gameday/save?id=${id}`, {
+      method: 'PATCH',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({mood_start: moodNum})
+    });
+    await loadDays();
+  }
+
+  loadDays();
+</script>
+
+</body>
+</html>

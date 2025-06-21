@@ -21,6 +21,13 @@ func main() {
 
 	r := chi.NewRouter()
 
+	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, "./web/index.html")
+	})
+
+	fs := http.FileServer(http.Dir("./web"))
+	r.Handle("/*", http.StripPrefix("/", fs))
+
 	r.Route("/gameday", func(r chi.Router) {
 		r.Post("/new", handlers.CreateGameDay)
 		r.Get("/list", handlers.GetAllGameDays)
