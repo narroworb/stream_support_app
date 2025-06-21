@@ -1,0 +1,81 @@
+POST http://localhost:8080/gameday/new
+Content-Type: application/json
+
+{
+  "mood_start": 50
+}
+
+###
+
+GET http://localhost:8080/gameday/list
+
+###
+
+DELETE  http://localhost:8080/gameday/remove?id=2
+Content-Type: application/json
+
+###
+
+PATCH http://localhost:8080/gameday/save?id=4
+Content-Type: application/json
+
+###
+
+POST http://localhost:8080/game/new?dayId=4
+Content-Type: application/json
+
+{
+  "place": 1,
+  "kills": 10,
+  "liquidations": 20,
+  "damage": 3250,
+  "mood_diff": 15,
+  "points": 108,
+  "status_code": 2
+}
+
+###
+
+POST http://localhost:8080/game/new?dayId=1
+Content-Type: application/json
+
+{
+  "place": 9,
+  "kills": 1,
+  "liquidations": 2,
+  "damage": 325,
+  "mood_diff": -7,
+  "points": -20,
+  "status_code": 3 
+}
+
+###
+
+DELETE  http://localhost:8080/game/remove?id=4
+Content-Type: application/json
+
+###
+
+GET http://localhost:8080/stats/mood?dayId=1
+
+###
+
+GET http://localhost:8080/stats/points?dayId=1
+
+###
+
+GET http://localhost:8080/todaygames/goodplus?dayId=1
+
+###
+
+GET http://localhost:8080/todaygames/badminus?dayId=1
+
+###
+
+GET http://localhost:8080/todaygames/badplus?dayId=1
+
+###
+
+GET http://localhost:8080/todaygames/goodminus?dayId=1
+
+###
