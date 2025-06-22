@@ -60,7 +60,7 @@ GET http://localhost:8080/stats/mood?dayId=8
 
 ###
 
-GET http://localhost:8080/stats/points?dayId=1
+GET http://localhost:8080/stats/points?dayId=12
 
 ###
 

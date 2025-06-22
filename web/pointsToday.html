@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8" />
+<title>Points</title>
+<style>
+  body {
+    background: #121212;
+    color: white;
+    font-size: 6rem;
+    font-weight: 900;
+    text-align: center;
+    margin: 0;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    -webkit-text-stroke: 2px black;
+    text-stroke: 2px black;
+    font-family: 'Arial Black', Arial, sans-serif;
+  }
+</style>
+</head>
+<body>
+<script>
+  // Получаем dayId из параметров URL
+  function getDayId() {
+    const params = new URLSearchParams(window.location.search);
+    return params.get('dayId') || '';
+  }
+
+  async function updatePoints() {
+    try {
+      const dayId = getDayId();
+      const url = dayId ? `/stats/points?dayId=${encodeURIComponent(dayId)}` : '/stats/points';
+      const res = await fetch(url);
+      if (!res.ok) throw new Error('Ошибка сети');
+      const data = await res.json();
+      document.body.textContent = 'Баланс очков SR сегодня: ' + data.points;
+    } catch {
+      document.body.textContent = '???';
+    }
+  }
+
+  updatePoints();
+  setInterval(updatePoints, 5000);
+</script>
+</body>
+</html>
