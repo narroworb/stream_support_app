@@ -53,6 +53,12 @@ func main() {
 		r.Get("/badplus", handlers.GetBadPlusGames)
 	})
 
+	r.Route("/history", func(r chi.Router) {
+		r.Get("/mood", handlers.GetMoodHistory)
+		r.Get("/points", handlers.GetPointsHistory)
+	})
+
 	fmt.Println("Server running on :8080")
+	fmt.Println("Visit site by: http://localhost:8080/")
 	http.ListenAndServe(":8080", r)
 }

@@ -81,3 +81,11 @@ GET http://localhost:8080/todaygames/goodminus?dayId=1
 ###
 
 GET http://localhost:8080/game/list?dayId=8
+
+###
+
+GET http://localhost:8080/history/mood
+
+###
+
+GET http://localhost:8080/history/points

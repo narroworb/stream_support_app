@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <title>WARZONE STATS - История</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@700&family=Roboto&display=swap');
+
+    body {
+      background-color: #121212;
+      color: #eee;
+      font-family: 'Roboto', Arial, sans-serif;
+      margin: 0;
+      padding: 2rem 1rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    h1 {
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 700;
+      font-size: 3rem;
+      color: #00bcd4;
+      margin-bottom: 2rem;
+      text-align: center;
+      text-shadow: 0 0 10px #00bcd4aa, 0 0 20px #00bcd4cc;
+      user-select: none;
+    }
+
+    .chart-container {
+      max-width: 700px;
+      width: 100%;
+      margin-bottom: 3rem;
+      background-color: #1f1f22;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 0 12px #00bcd455;
+    }
+
+    canvas {
+      width: 100% !important;
+      height: 350px !important;
+    }
+
+    .btn {
+      background: #00bcd4;
+      color: #121212;
+      font-weight: 700;
+      font-size: 1rem;
+      padding: 0.6rem 1.2rem;
+      border-radius: 8px;
+      cursor: pointer;
+      border: none;
+      box-shadow: 0 4px 8px rgba(0,188,212,0.4);
+      transition: background-color 0.3s ease;
+      text-decoration: none;
+    }
+
+    .btn:hover {
+      background: #0097a7;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>WARZONE STATS</h1>
+
+  <div class="chart-container">
+    <canvas id="moodChart"></canvas>
+  </div>
+
+  <div class="chart-container">
+    <canvas id="pointsChart"></canvas>
+  </div>
+
+  <a href="/" class="btn">Назад</a>
+
+  <script>
+    async function fetchData(url) {
+      const res = await fetch(url);
+      return res.json();
+    }
+
+    function formatTimestamps(timestamps) {
+      return timestamps.map(ts => {
+        const date = new Date(ts);
+        return date.toLocaleString('ru-RU');
+      });
+    }
+
+    function getColorArray(data) {
+      return data.map(val => val >= 0 ? 'limegreen' : 'crimson');
+    }
+
+    async function renderCharts() {
+      const moodData = await fetchData("/history/mood");
+      const pointsData = await fetchData("/history/points");
+
+      const moodLabels = formatTimestamps(moodData.timestamps);
+      const pointsLabels = formatTimestamps(pointsData.timestamps);
+
+      new Chart(document.getElementById('moodChart'), {
+        type: 'bar',
+        data: {
+          labels: moodLabels,
+          datasets: [{
+            label: 'Настроение',
+            data: moodData.mood,
+            backgroundColor: getColorArray(moodData.mood)
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: { display: false },
+            title: {
+              display: true,
+              text: 'Настроение по дням',
+              color: 'white',
+              padding: { top: 10, bottom: 10 }
+            }
+          },
+          scales: {
+            x: {
+              ticks: { color: 'white' },
+              grid: { color: '#333' }
+            },
+            y: {
+              ticks: { color: 'white' },
+              grid: { color: '#333' }
+            }
+          }
+        }
+      });
+
+      new Chart(document.getElementById('pointsChart'), {
+        type: 'line',
+        data: {
+          labels: pointsLabels,
+          datasets: [{
+            label: 'Очки',
+            data: pointsData.points,
+            borderColor: 'white',
+            borderWidth: 2,
+            pointRadius: 6,
+            pointHoverRadius: 8,
+            pointBackgroundColor: getColorArray(pointsData.points),
+            pointBorderColor: '#222',
+            fill: false,
+            tension: 0.4
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: { display: false },
+            title: {
+              display: true,
+              text: 'Очки по дням',
+              color: 'white',
+              padding: { top: 10, bottom: 10 }
+            }
+          },
+          scales: {
+            x: {
+              ticks: { color: 'white' },
+              grid: { color: '#333' }
+            },
+            y: {
+              ticks: { color: 'white' },
+              grid: { color: '#333' }
+            }
+          }
+        }
+      });
+    }
+
+    renderCharts();
+  </script>
+</body>
+</html>

@@ -69,6 +69,24 @@
     user-select: none;
   }
 
+  #historyBtn {
+  background: #4caf50;
+  color: #fff;
+  font-weight: 700;
+  padding: 0.6rem 1.2rem;
+  border-radius: 8px;
+  cursor: pointer;
+  border: none;
+  box-shadow: 0 4px 8px rgba(76, 175, 80, 0.4);
+  transition: background-color 0.3s ease;
+  user-select: none;
+}
+
+#historyBtn:hover {
+  background: #388e3c;
+}
+
+
   button:hover {
     background: #0097a7;
   }
@@ -167,6 +185,7 @@
 <div id="createSection">
   <input id="moodStart" type="number" min="0" max="100" placeholder="Настроение в начале" />
   <button id="createBtn">Начать день</button>
+  <button id="historyBtn">Посмотреть историю</button>
 </div>
 
 <ul id="daysList"></ul>
@@ -174,6 +193,7 @@
 <script>
   const daysList = document.getElementById('daysList');
   const createBtn = document.getElementById('createBtn');
+  const historyBtn = document.getElementById('historyBtn');
   const moodStartInput = document.getElementById('moodStart');
 
   async function loadDays() {
@@ -241,6 +261,10 @@
     });
     moodStartInput.value = '';
     await loadDays();
+  };
+
+  historyBtn.onclick = async () => {
+    window.location.href = `history.html`;
   };
 
   function goToDay(id) {
