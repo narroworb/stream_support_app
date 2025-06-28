@@ -42,8 +42,10 @@ func main() {
 	})
 
 	r.Route("/stats", func(r chi.Router) {
-		r.Get("/mood", handlers.GetMoodToday)
-		r.Get("/points", handlers.GetPointsToday)
+		r.Get("/mood", handlers.GetMood)
+		r.Get("/points", handlers.GetPoints)
+		r.Get("/mood/last", handlers.GetMoodLast)
+		r.Get("/points/last", handlers.GetPointsLast)
 	})
 
 	r.Route("/todaygames", func(r chi.Router) {

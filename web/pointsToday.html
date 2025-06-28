@@ -24,15 +24,17 @@
 <body>
 <script>
   // Получаем dayId из параметров URL
-  function getDayId() {
-    const params = new URLSearchParams(window.location.search);
-    return params.get('dayId') || '';
-  }
+  // function getDayId() {
+  //   const params = new URLSearchParams(window.location.search);
+  //   return params.get('dayId') || '';
+  // }
 
   async function updatePoints() {
     try {
-      const dayId = getDayId();
-      const url = dayId ? `/stats/points?dayId=${encodeURIComponent(dayId)}` : '/stats/points';
+      // const dayId = getDayId();
+      // const url = dayId ? `/stats/points?dayId=${encodeURIComponent(dayId)}` : '/stats/points';
+      const url = `/stats/points/last`;
+
       const res = await fetch(url);
       if (!res.ok) throw new Error('Ошибка сети');
       const data = await res.json();

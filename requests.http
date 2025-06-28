@@ -89,3 +89,11 @@ GET http://localhost:8080/history/mood
 ###
 
 GET http://localhost:8080/history/points
+
+###
+
+GET http://localhost:8080/stats/mood/last
+
+###
+
+GET http://localhost:8080/stats/points/last

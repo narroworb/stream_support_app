@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"strconv"
 	"stream_app/internal/db"
@@ -13,7 +14,7 @@ type GetMoodTodayResponse struct {
 	TimeStamps []time.Time `json:"timestamps"`
 }
 
-func GetMoodToday(w http.ResponseWriter, r *http.Request) {
+func GetMood(w http.ResponseWriter, r *http.Request) {
 	dayIdStr := r.URL.Query().Get("dayId")
 	dayID, err := strconv.Atoi(dayIdStr)
 	if err != nil || dayID <= 0 {
@@ -80,7 +81,7 @@ type GetPointsTodayResponse struct {
 	Points int `json:"points"`
 }
 
-func GetPointsToday(w http.ResponseWriter, r *http.Request) {
+func GetPoints(w http.ResponseWriter, r *http.Request) {
 	dayIdStr := r.URL.Query().Get("dayId")
 	dayID, err := strconv.Atoi(dayIdStr)
 	if err != nil || dayID <= 0 {
@@ -271,4 +272,52 @@ func GetBadPlusGames(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
 	w.Write(data)
+}
+
+func GetMoodLast(w http.ResponseWriter, r *http.Request) {
+	row := db.PG.QueryRow(`
+        SELECT id
+        FROM days
+		ORDER BY id DESC
+		LIMIT 1
+    `)
+
+	var dayID int
+
+	err := row.Scan(&dayID)
+	if err != nil {
+		http.Error(w, `{"error": "db scan error"}`, http.StatusInternalServerError)
+		return
+	}
+
+	params := r.URL.Query()
+	params.Add("dayId", fmt.Sprintf("%d", dayID))
+
+	r.URL.RawQuery = params.Encode()
+
+	GetMood(w, r)
+}
+
+func GetPointsLast(w http.ResponseWriter, r *http.Request) {
+	row := db.PG.QueryRow(`
+        SELECT id
+        FROM days
+		ORDER BY id DESC
+		LIMIT 1
+    `)
+
+	var dayID int
+
+	err := row.Scan(&dayID)
+	if err != nil {
+		http.Error(w, `{"error": "db scan error"}`, http.StatusInternalServerError)
+		return
+	}
+
+	params := r.URL.Query()
+	params.Add("dayId", fmt.Sprintf("%d", dayID))
+
+	r.URL.RawQuery = params.Encode()
+
+	GetPoints(w, r)
 }

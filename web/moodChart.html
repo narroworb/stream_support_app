@@ -26,20 +26,21 @@
   <script>
     let chart; // глобальная переменная для графика
 
-    function getQueryParam(name) {
-      const urlParams = new URLSearchParams(window.location.search);
-      return urlParams.get(name);
-    }
-    const dayId = getQueryParam('id');
+    // function getQueryParam(name) {
+    //   const urlParams = new URLSearchParams(window.location.search);
+    //   return urlParams.get(name);
+    // }
+    // const dayId = getQueryParam('id');
 
     async function loadMoodDataAndUpdateChart() {
-      if (!dayId) {
-        console.error('Не указан параметр id');
-        return;
-      }
+      // if (!dayId) {
+      //   console.error('Не указан параметр id');
+      //   return;
+      // }
 
       try {
-        const res = await fetch(`/stats/mood?dayId=${dayId}`);
+        // const res = await fetch(`/stats/mood?dayId=${dayId}`);
+        const res = await fetch(`/stats/mood/last`);
         if (!res.ok) throw new Error('Ошибка загрузки данных');
         const data = await res.json();
 
