@@ -33,7 +33,21 @@ func GetMoodToday(w http.ResponseWriter, r *http.Request) {
 	}
 	defer rows.Close()
 
-	mood := []int{50}
+	row := db.PG.QueryRow(`
+        SELECT mood_start
+        FROM days
+		WHERE id = $1
+    `, dayID)
+
+	var moodStart int
+
+	err = row.Scan(&moodStart)
+	if err != nil {
+		http.Error(w, `{"error": "db scan error"}`, http.StatusInternalServerError)
+		return
+	}
+
+	mood := []int{moodStart}
 	timestamps := []time.Time{time.Time{}}
 
 	for rows.Next() {
